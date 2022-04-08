@@ -15,6 +15,7 @@ inThisBuild(
         url("https://github.com/enriquerodbe")
       )
     ),
+    versionScheme := Some("early-semver"),
     sonatypeCredentialHost := "s01.oss.sonatype.org",
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     crossScalaVersions := Seq("2.13.8"),
@@ -25,7 +26,19 @@ inThisBuild(
     ),
     githubWorkflowPublish := Seq(
       WorkflowStep.Sbt(
-        List("ci-release"),
+        commands = List("ci-release"),
+        name = Some("Release for ScalaJS"),
+        env = Map(
+          "SCALAJS" -> "true",
+          "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
+          "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
+          "SONATYPE_PASSWORD" -> "${{ secrets.SONATYPE_PASSWORD }}",
+          "SONATYPE_USERNAME" -> "${{ secrets.SONATYPE_USERNAME }}"
+        )
+      ),
+      WorkflowStep.Sbt(
+        commands = List("ci-release"),
+        name = Some("Release for ScalaJVM"),
         env = Map(
           "PGP_PASSPHRASE" -> "${{ secrets.PGP_PASSPHRASE }}",
           "PGP_SECRET" -> "${{ secrets.PGP_SECRET }}",
@@ -54,6 +67,7 @@ inThisBuild(
   )
 )
 
+val scalaJSBuild = Option(System.getenv("SCALAJS"))
 lazy val root =
   crossProject(JVMPlatform, JSPlatform)
     .crossType(CrossType.Pure)
@@ -72,4 +86,10 @@ lazy val root =
       coverageFailOnMinimum := true,
       coverageMinimumStmtTotal := 100,
       coverageMinimumBranchTotal := 100
+    )
+    .jvmSettings(
+      publish / skip := scalaJSBuild.isDefined
+    )
+    .jsSettings(
+      publish / skip := scalaJSBuild.isEmpty
     )

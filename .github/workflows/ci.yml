@@ -117,7 +117,17 @@ jobs:
           tar xf targets.tar
           rm targets.tar
 
-      - env:
+      - name: Release for ScalaJS
+        env:
+          SCALAJS: true
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        run: sbt ++${{ matrix.scala }} ci-release
+
+      - name: Release for ScalaJVM
+        env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
