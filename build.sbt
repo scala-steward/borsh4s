@@ -26,7 +26,7 @@ lazy val borsh4s =
     .in(file("."))
     .settings(
       name := "borsh4s",
-      scalaVersion := "3.8.1",
+      scalaVersion := "3.8.2",
 
       // Dependencies
       libraryDependencies ++= Seq(
